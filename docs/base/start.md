@@ -1,2 +1,3 @@
 # 开始
-文档由 vitepress 编写
+
+本文档使用  [VitePress](https://vitepress.vuejs.org) 编写
