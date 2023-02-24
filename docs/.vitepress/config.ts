@@ -14,7 +14,7 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/shibin-cli/learn-go' }
     ],
     editLink: {
-      pattern: 'https://github.com/shibin-cli/learn-go/edit/main/docs/:path'
+      pattern: 'https://github.com/shibin-cli/learn-go/edit/master/docs/:path'
     }
   },
   
