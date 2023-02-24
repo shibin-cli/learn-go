@@ -1,0 +1,40 @@
+:root {
+  --vp-c-brand: #646cff;
+  --vp-c-brand-light: #747bff;
+  --vp-c-brand-lighter: #9499ff;
+  --vp-c-brand-lightest: #bcc0ff;
+  --vp-c-brand-dark: #535bf2;
+  --vp-c-brand-darker: #454ce1;
+  --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
+}
+:root {
+  --vp-badge-info-border: var(--vp-c-divider-light);
+  --vp-badge-info-text: var(--vp-c-text-2);
+  --vp-badge-info-bg: var(--vp-c-white-soft);
+
+  --vp-badge-tip-border: var(--vp-c-green-dimm-1);
+  --vp-badge-tip-text: var(--vp-c-green-darker);
+  --vp-badge-tip-bg: var(--vp-c-green-dimm-3);
+
+  --vp-badge-warning-border: var(--vp-c-yellow-dimm-1);
+  --vp-badge-warning-text: var(--vp-c-yellow-darker);
+  --vp-badge-warning-bg: var(--vp-c-yellow-dimm-3);
+
+  --vp-badge-danger-border: var(--vp-c-red-dimm-1);
+  --vp-badge-danger-text: var(--vp-c-red-darker);
+  --vp-badge-danger-bg: var(--vp-c-red-dimm-3);
+}
+
+.dark {
+  --vp-badge-info-border: var(--vp-c-divider-light);
+  --vp-badge-info-bg: var(--vp-c-black-mute);
+
+  --vp-badge-tip-border: var(--vp-c-green-dimm-2);
+  --vp-badge-tip-text: var(--vp-c-green-light);
+
+  --vp-badge-warning-border: var(--vp-c-yellow-dimm-2);
+  --vp-badge-warning-text: var(--vp-c-yellow-light);
+
+  --vp-badge-danger-border: var(--vp-c-red-dimm-2);
+  --vp-badge-danger-text: var(--vp-c-red-light);
+}
