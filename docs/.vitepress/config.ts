@@ -26,11 +26,18 @@ export default defineConfig({
 function sidebarBase(){
   return [
     {
-      text: '理解rpc',
+      text: '开始',
       collapsed: true,
       items: [
         { text: '开始', link: '/base/start.md' },
         { text: '编码规范', link: '/base/coding-specification.md' },
+      ]
+  },
+    {
+      text: '理解 RPC',
+      collapsed: true,
+      items: [
+        { text: 'RPC', link: '/base/rpc.md' },
       ]
   }]
 }
