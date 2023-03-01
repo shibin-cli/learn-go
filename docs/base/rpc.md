@@ -138,6 +138,24 @@ func main() {
 	fmt.Println(reply)
 }
 ```
+使用 python 发送请求
+```py
+import json
+import socket
+
+request = {
+    "id": 0,
+    "params": ["body"],
+    "method": "HelloService.Hello"
+}
+client = socket.create_connection(("localhost", "8080"))
+# 发送请求
+client.send(json.dumps(request).encode())
+res= client.recv(4096)
+print(res)
+json = json.loads(res.decode())
+print(json)
+```
 ## 替换 RPC 传输协议
 
 将传输协议替换为 [http](https://developer.mozilla.org/zh-CN/docs/Web/HTTP) 协议
