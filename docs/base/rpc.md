@@ -141,7 +141,7 @@ func main() {
 ## 替换 RPC 传输协议
 
 将传输协议替换为 [http](https://developer.mozilla.org/zh-CN/docs/Web/HTTP) 协议
-
+### 服务端
 ```go
 package main
 
@@ -168,7 +168,6 @@ func main() {
 	}
 	// server
 	http.HandleFunc("/json", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(123)
 		var conn io.ReadWriteCloser = struct {
 			io.Writer
 			io.ReadCloser
@@ -184,6 +183,9 @@ func main() {
 }
 
 ```
+
+### 客户端
+
 下面使用 python 代码测试
 ```py
 import requests
@@ -196,4 +198,16 @@ request = {
 
 res = requests.post("http://localhost:8080/json", json=request)
 print(res.text) # {"id":0,"result":"Hello,body","error":null}
+```
+也可以使用 nodejs 调用
+```ts
+import axios from 'axios'
+
+axios.post('http://localhost:8080/json', {
+  id: 0,
+  params: ['shibin'],
+  method: 'HelloService.Hello'
+}).then(res => {
+  console.log(res.data) // { id: 0, result: 'Hello,shibin', error: null }
+})
 ```
