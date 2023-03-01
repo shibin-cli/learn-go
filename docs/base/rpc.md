@@ -1,4 +1,5 @@
 # RPC
+
 ## 什么是 RPC
 
 * RPC(Remote Procedure Call) 远程过程调用， 简单理解是一个节点请求另一个节点提供的服务
@@ -14,7 +15,9 @@
 * 网络传输
 
 ## 快速体验 RPC
+
 服务端
+
 ```go
 package main
 
@@ -66,4 +69,118 @@ func main() {
 	}
 	fmt.Println(*reply) // Hello,Shibin
 }
+```
+## 替换 RPC 序列化协议
+上面客户端调用有点麻烦，直接使用 `client.Hello` 调用呢
+
+如果要实现跨语言调用，首先需要了解
+* Go 语言的 RPC 的序列化和反序列化的协议是什么(Gob)
+* 能否换成常见的序列化协议。如 JSON
+
+下面将数据改成 json 传输
+### 服务端
+```go
+package main
+
+import (
+	"net"
+	"net/rpc"
+	"net/rpc/jsonrpc"
+)
+
+type HelloService struct {
+}
+
+func (s *HelloService) Hello(request string, reply *string) error {
+	*reply = "Hello," + request
+	return nil
+}
+func main() {
+	// 注册一个 server
+	listener, _ := net.Listen("tcp", ":8080")
+	// 注册处理逻辑
+	err := rpc.RegisterName("HelloService", &HelloService{})
+	if err != nil {
+		return
+	}
+
+	for {
+		conn, _ := listener.Accept()
+		go rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
+	}
+}
+
+```
+
+### 客户端
+
+```go
+package main
+
+import (
+	"fmt"
+	"net"
+	"net/rpc"
+	"net/rpc/jsonrpc"
+)
+
+func main() {
+	client, err := net.Dial("tcp", "localhost:8080")
+	if err != nil {
+		panic("连接失败")
+	}
+	var reply string
+	newClient := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(client))
+	err = newClient.Call("HelloService.Hello", "Shibin", &reply)
+	if err != nil {
+		panic("调用失败")
+	}
+	fmt.Println(reply)
+}
+```
+## 替换 RPC 传输协议
+
+将传输协议替换为 [http](https://developer.mozilla.org/zh-CN/docs/Web/HTTP) 协议
+
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/rpc"
+	"net/rpc/jsonrpc"
+)
+
+type HelloService struct {
+}
+
+func (s *HelloService) Hello(request string, reply *string) error {
+	*reply = "Hello," + request
+	return nil
+}
+func main() {
+	// 注册处理逻辑
+	err := rpc.RegisterName("HelloService", &HelloService{})
+	if err != nil {
+		return
+	}
+	// server
+	http.HandleFunc("/json", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(123)
+		var conn io.ReadWriteCloser = struct {
+			io.Writer
+			io.ReadCloser
+		}{
+			ReadCloser: r.Body,
+			Writer:     w,
+		}
+		fmt.Println(r.Body)
+		rpc.ServeRequest(jsonrpc.NewServerCodec(conn))
+		fmt.Println(jsonrpc.NewServerCodec(conn))
+	})
+	http.ListenAndServe(":8080", nil)
+}
+
 ```
