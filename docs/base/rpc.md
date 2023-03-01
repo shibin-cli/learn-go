@@ -156,6 +156,41 @@ print(res)
 json = json.loads(res.decode())
 print(json)
 ```
+
+nodejs 发送请求
+```ts
+import net from 'net'
+
+const options = {
+  host: 'localhost',
+  port: 8080
+}
+
+const client = new net.Socket()
+const data = {
+  id: 0,
+  params: ['shibin'],
+  method: 'HelloService.Hello'
+}
+// 连接 tcp server
+client.connect(options, function () {
+  console.log('connected to Server')
+  client.write(JSON.stringify(data))
+})
+
+// 接收数据
+client.on('data', function (data) {
+  console.log(data.toString())
+})
+
+client.on('end', function () {
+  console.log('data end!')
+})
+
+client.on('error', function (err) {
+  console.log(err)
+})
+```
 ## 替换 RPC 传输协议
 
 将传输协议替换为 [http](https://developer.mozilla.org/zh-CN/docs/Web/HTTP) 协议
