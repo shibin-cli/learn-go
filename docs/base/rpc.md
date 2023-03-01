@@ -184,3 +184,16 @@ func main() {
 }
 
 ```
+下面使用 python 代码测试
+```py
+import requests
+
+request = {
+    "id": 0,
+    "params": ["body"],
+    "method": "HelloService.Hello"
+}
+
+res = requests.post("http://localhost:8080/json", json=request)
+print(res.text) # {"id":0,"result":"Hello,body","error":null}
+```
