@@ -145,15 +145,16 @@ import socket
 
 request = {
     "id": 0,
-    "params": ["body"],
+    "params": ["Shibin"],
     "method": "HelloService.Hello"
 }
 client = socket.create_connection(("localhost", "8080"))
 # 发送请求
 client.send(json.dumps(request).encode())
-res= client.recv(4096)
-print(res)
-json = json.loads(res.decode())
+# 接收请求
+res = client.recv(4096)
+# 数据转化为json
+json = json.loads(res.decode())  
 print(json)
 ```
 
@@ -161,34 +162,24 @@ nodejs 发送请求
 ```ts
 import net from 'net'
 
-const options = {
-  host: 'localhost',
-  port: 8080
-}
-
-const client = new net.Socket()
 const data = {
   id: 0,
-  params: ['shibin'],
+  params: ['Shibin'],
   method: 'HelloService.Hello'
 }
-// 连接 tcp server
-client.connect(options, function () {
-  console.log('connected to Server')
+const client = net.createConnection({
+  port: 8080,
+  host: '10.24.118.170'
+}, () => {
+  console.log('connected to server!')
   client.write(JSON.stringify(data))
 })
-
-// 接收数据
-client.on('data', function (data) {
-  console.log(data.toString())
+client.on('data', (data) => {
+  console.log(data.toString()) // {"id":0,"result":"Hello,Shibin","error":null}
+  client.end()
 })
-
-client.on('end', function () {
-  console.log('data end!')
-})
-
-client.on('error', function (err) {
-  console.log(err)
+client.on('end', () => {
+  console.log('disconnected from server')
 })
 ```
 ## 替换 RPC 传输协议
@@ -228,9 +219,7 @@ func main() {
 			ReadCloser: r.Body,
 			Writer:     w,
 		}
-		fmt.Println(r.Body)
 		rpc.ServeRequest(jsonrpc.NewServerCodec(conn))
-		fmt.Println(jsonrpc.NewServerCodec(conn))
 	})
 	http.ListenAndServe(":8080", nil)
 }

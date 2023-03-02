@@ -30,6 +30,7 @@ function sidebarBase(){
       collapsed: true,
       items: [
         { text: '开始', link: '/base/start.md' },
+        { text: '接口', link: '/base/interface.md' },
         { text: '编码规范', link: '/base/coding-specification.md' },
       ]
   },
