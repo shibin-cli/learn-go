@@ -1,15 +1,32 @@
 {
-	"engines": {
+  "name": "learn-go",
+  "version": "1.0.0",
+  "description": "Go",
+  "engines": {
     "node": ">=16.0.0",
     "pnpm": ">=7.4.0"
   },
-	"scripts": {
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",
     "preview": "vitepress preview docs"
   },
-	"devDependencies": {
-		"vitepress": "1.0.0-alpha.47",
-		"vue": "^3.2.47"
-	}
+  "dependencies": {
+    "vitepress": "^1.0.0-alpha.47",
+    "vue": "^3.2.47"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shibin-cli/learn-go.git"
+  },
+  "keywords": ["go"],
+  "author": "Shibin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shibin-cli/learn-go/issues"
+  },
+  "homepage": "https://github.com/shibin-cli/learn-go#readme"
 }

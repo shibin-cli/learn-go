@@ -6,6 +6,26 @@
 * 对应 RPC 的是本地过程调用，函数调用是最常见的本地过程调用
 * 将本地过程变成远程过程调用会面临各种问题
 
+下面是一段 python 代码， 服务端注册一个 `hello` 方法
+```py
+import zerorpc
+
+class HelloRPC(object):
+    def hello(self, name):
+        return "Hello, %s" % name
+
+s = zerorpc.Server(HelloRPC())
+s.bind("tcp://0.0.0.0:3000")
+s.run()
+```
+在客户端，连接到服务端后，就可以直接调用服务端的  `hello` 方法
+```py
+import zerorpc
+
+c = zerorpc.Client()
+c.connect("tcp://localhost:3000")
+print(c.hello("Shibin")) # Hello, Shibin
+```
 ## 远程过程面临的问题
 
 本地函数放到另一个服务器上去运行，但是会引入很多新问题

@@ -10,6 +10,7 @@ export default defineConfig({
     sidebar: {
       '/base/': sidebarBase(),
     },
+    logo: '/go-logo-blue.svg',
     nav: nav(),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/shibin-cli/learn-go' }
