@@ -9,12 +9,12 @@ hero:
   text: Go基础和文档
   # tagline: Simple, powerful, and performant. Meet the modern SSG framework you've always wanted.
   image:
-    src: /public/motorcycle.svg
+    src: /motorcycle.svg
     alt: Go
   actions:
     - theme: brand
       text: 开始
-      link: /base/coding-specification.md
+      link: /base/start.md
     - theme: alt
       text: 在 GitHub 上查看
       link: https://github.com/shibin-cli/learn-go

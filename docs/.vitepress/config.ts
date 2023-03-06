@@ -40,6 +40,7 @@ function sidebarBase(){
       collapsed: true,
       items: [
         { text: 'RPC', link: '/base/rpc.md' },
+        { text: 'gRPC', link: '/base/grpc.md' },
       ]
   }]
 }
