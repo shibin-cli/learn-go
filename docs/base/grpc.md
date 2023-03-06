@@ -25,11 +25,16 @@ protobuf 的优点
 * 自解释性差 （只能通过 proto 文件才能了解数据结构）
 ## gRPC 环境搭建
 
-### 安装 protoc  
+### 安装 protoc
+#### mac
+Mac 系统可以通过 brew 安装
+```bash
+brew install protoc
+```
+#### Win
+Win 下，打开 https://github.com/protocolbuffers/protobuf/releases ，下载指定的版本
 
-打开 https://github.com/protocolbuffers/protobuf/releases ，下载指定的版本就可以了
-
-Win 下面需要配置环境变量 ，将下载的 protobuf 文件中的 bin 目录下 protoc.exe 的添加到环境变量中
+下面需要配置环境变量 ，将下载的 protobuf 文件中的 bin 目录下 protoc.exe 的添加到环境变量中
 * 鼠标右键此电脑属性
 * 点击 系统 -> 高级系统设置 -> 环境变量
 * 点击系统变量中的 Path, 将 bin 目录添加的环境变量中
@@ -61,7 +66,7 @@ message HelloRequest {
 编译 proto 文件
 ```bash
 protoc --go_out=. --go_opt=paths=source_relative \
---go-grpc_out=. --go-grpc_opt=paths=source_relative 
+--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 hello.proto
 ```
 会生成一个 hello.pb.go 文件
