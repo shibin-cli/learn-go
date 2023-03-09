@@ -11,11 +11,6 @@ export default defineConfig({
       '/base/': sidebarBase(),
     },
     logo: '/go-logo-blue.svg',
-    algolia: {
-      appId: '9M9MV7CEGT',
-      apiKey: 'f57c66bbabeacbad78e7d22e6f6c8ad0',
-      indexName: 'learn-go'
-    },
     nav: nav(),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/shibin-cli/learn-go' }
