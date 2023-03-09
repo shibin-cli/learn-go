@@ -11,6 +11,11 @@ export default defineConfig({
       '/base/': sidebarBase(),
     },
     logo: '/go-logo-blue.svg',
+    algolia: {
+      appId: '9M9MV7CEGT',
+      apiKey: 'f57c66bbabeacbad78e7d22e6f6c8ad0',
+      indexName: 'learn-go'
+    },
     nav: nav(),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/shibin-cli/learn-go' }
@@ -39,8 +44,8 @@ function sidebarBase(){
       text: '理解 RPC',
       collapsed: true,
       items: [
-        { text: 'RPC', link: '/base/rpc.md' },
-        { text: 'gRPC', link: '/base/grpc.md' },
+        { text: 'RPC', link: '/base/rpc/rpc.md' },
+        { text: 'gRPC', link: '/base/rpc/grpc.md' },
       ]
   }]
 }
