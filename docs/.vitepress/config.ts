@@ -3,10 +3,14 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Go学习',
   description: 'Go基础学习',
-  base:'/learn-go/',
+  base: '/learn-go/',
   head: [['meta', { name: 'theme-color', content: '#3c8772' }]],
-
   themeConfig: {
+    algolia: {
+      appId: '16LHHYNQFO',
+      apiKey: '06eb22f1a9b225356ab3099b6de09b22',
+      indexName: 'learn-go',
+    },
     sidebar: {
       '/base/': sidebarBase(),
     },
@@ -20,11 +24,11 @@ export default defineConfig({
       text: '在 GitHub 上编辑此页'
     },
     outline: 'deep',
-    outlineTitle:'本页目录',
+    outlineTitle: '本页目录',
   },
 })
 
-function sidebarBase(){
+function sidebarBase() {
   return [
     {
       text: '开始',
@@ -34,7 +38,7 @@ function sidebarBase(){
         { text: '接口', link: '/base/interface.md' },
         { text: '编码规范', link: '/base/coding-specification.md' },
       ]
-  },
+    },
     {
       text: '理解 RPC',
       collapsed: true,
@@ -42,7 +46,7 @@ function sidebarBase(){
         { text: 'RPC', link: '/base/rpc/rpc.md' },
         { text: 'gRPC', link: '/base/rpc/grpc.md' },
       ]
-  }]
+    }]
 }
 
 function nav() {
