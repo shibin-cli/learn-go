@@ -1,4 +1,4 @@
-# gRPC
+# gRPC 入门
 ## 什么是 gRPC
 [gRPC](https://grpc.io) 是一个高性能、开源和通用的 RPC 框架，面向移动和 HTTP/2 设计的。目前提供 C、Java 和 Go 语言版本，分别是：[grpc](https://github.com/grpc/grpc) 、 [grpc-java](https://github.com/grpc/grpc-java) 、 [grpc-go](https://github.com/grpc/grpc-go) 。其中 C 版本支持 C 、 C++ 、 Node.js 、 Python 、 Ruby 、 Objective-C 、 PHP 和 C# 支持.
 
@@ -300,4 +300,168 @@ message  Response{
   string  message = 2;
 }
 ```
+:::
+
+## 流模式
+编写 proto 文件
+```proto
+syntax = "proto3";
+option go_package = "./;stream";
+service Greater {
+  rpc GetStream(StreamData) returns (stream StreamRes); // 服务端流模式
+  rpc PutStream(stream StreamData) returns (StreamRes); // 客户端流模式
+  rpc AllStream(stream StreamData) returns (stream StreamRes); // 双向流模式
+}
+
+message StreamData {
+  string data = 1;
+}
+message StreamRes {
+  string  data = 1;
+}
+```
+### 服务端流模式
+::: code-group
+
+```go [server.go]
+func (s *Server) GetStream(req *stream.StreamReqData, res stream.Stream_GetStreamServer) error {
+	fmt.Println(req.Data)
+	i := 0
+	for {
+		i++
+		res.Send(&stream.StreamResData{
+			Data: fmt.Sprintf("服务端流模式，%d", i),
+		})
+		time.Sleep(time.Second)
+		if i > 10 {
+			break
+		}
+	}
+	return nil
+}
+```
+```go [client.go]
+func main(){
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer conn.Close()
+
+	getRes, _ := c.GetStream(context.Background(), &stream.StreamReqData{ // [!code ++]
+		Data: "Hehe", // [!code ++]
+	}) // [!code ++]
+	for { // [!code ++]
+		data, err := getRes.Recv() // [!code ++]
+		fmt.Println(data) // [!code ++]
+		if err != nil { // [!code ++]
+			break // [!code ++]
+		} // [!code ++]
+	} // [!code ++]
+}
+```
+:::
+
+
+
+### 客户端流模式
+::: code-group
+```go [server.go]
+func (s *Server) PutStream(req stream.Stream_PutStreamServer) error {
+	for {
+		data, err := req.Recv()
+		if err != nil {
+			break
+		}
+		fmt.Println(data)
+	}
+	return nil
+}
+```
+```go [client.go]
+func main(){
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer conn.Close()
+
+	putRes, _ := c.PutStream(context.Background()) // [!code ++]
+	i := 0 // [!code ++]
+	for { // [!code ++]
+		if i > 10 { // [!code ++]
+			break // [!code ++]
+		} // [!code ++]
+		putRes.Send(&stream.StreamReqData{ // [!code ++]
+			Data: fmt.Sprintf("Hello, %d", i), // [!code ++]
+		}) // [!code ++]
+		i++ // [!code ++]
+		time.Sleep(time.Second) // [!code ++]
+	} // [!code ++]
+}
+```
+:::
+
+### 双向流模式
+::: code-group
+```go [server.go]
+func (s *Server) AllStream(res stream.Stream_AllStreamServer) error {
+	wg := sync.WaitGroup{}
+
+	wg.Add(2) 
+	go func() {
+		defer wg.Done()
+		for {
+			data, err := res.Recv()
+			fmt.Println(data)
+			if err != nil {
+				break
+			}
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		i := 0
+		for {
+			i++
+			res.Send(&stream.StreamResData{Data: fmt.Sprintf("服务端信息 %d", i)})
+			time.Sleep(time.Second)
+		}
+	}()
+	wg.Wait()
+	return nil
+}
+
+```
+
+```go [client.go]
+func main(){
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer conn.Close()
+
+	allRes, _ := c.AllStream(context.Background()) // [!code ++]
+	wg := sync.WaitGroup{} // [!code ++]
+	wg.Add(2) // [!code ++]
+	go func() { // [!code ++]
+		defer wg.Done() // [!code ++]
+		i := 0 // [!code ++]
+		for { // [!code ++]
+			allRes.Send(&stream.StreamReqData{ // [!code ++]
+				Data: fmt.Sprintf("Hello, %d", i), // [!code ++]
+			}) // [!code ++]
+			time.Sleep(time.Second) // [!code ++]
+			i++ // [!code ++]
+		} // [!code ++]
+	}() // [!code ++]
+	go func() { // [!code ++]
+		defer wg.Done() // [!code ++]
+		for { // [!code ++]
+			data, _ := allRes.Recv() // [!code ++]
+			fmt.Println(data) // [!code ++]
+		} // [!code ++]
+	}() // [!code ++]
+	wg.Wait() // [!code ++]
+}
+```
+:::
+
+下面是流模式的完整代码
+::: code-group
+<<< @/code/grpc-stream/proto/stream.proto
+<<< @/code/grpc-stream/server/server.go
+<<< @/code/grpc-stream/client/client.go
 :::

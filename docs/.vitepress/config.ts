@@ -44,7 +44,8 @@ function sidebarBase() {
       collapsed: true,
       items: [
         { text: 'RPC', link: '/base/rpc/rpc.md' },
-        { text: 'gRPC', link: '/base/rpc/grpc.md' },
+        { text: 'gRPC 入门', link: '/base/rpc/grpc.md' },
+        { text: 'protobuf', link: '/base/rpc/protobuf.md' },
       ]
     }]
 }
