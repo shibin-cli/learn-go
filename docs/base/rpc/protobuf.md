@@ -35,7 +35,9 @@ protobuf 官网文档 https://protobuf.dev/programming-guides/proto3/
 
 
 ## option go_package 的作用
+
 通过 option go_package 可以指定编译生成后的文件和 package 名称
+
 ```proto
 syntax = "proto3";
 
@@ -49,10 +51,80 @@ message StreamResData{
   string data = 1;
 }
 ```
+
 分号后面可以指定 package 的名称，如果不指定默认为生成文件目录的名称
 
 例如下面代码生成的文件 package 名称就是 v2
+
 ```proto
 syntax = "proto3";
 option go_package = "./aa/v2"
+```
+## proto 文件导入 proto 文件
+proto 文件中可以导入另一个 proto 文件
+::: code-group
+```proto  [hello.proto]
+syntax = "proto3";
+import "message.proto"; // 导入 message.proto 文件 // [!code ++]
+option go_package = "./;hello";
+
+service HelloResponse{
+  rpc Ping(Empty) returns(Status);
+}
+message Empty{ // [!code --]
+} // [!code --]
+message Status{ // [!code --]
+  int32 status = 1; // [!code --]
+} // [!code --]
+```
+```proto [message.proto]
+syntax = "proto3";
+option go_package = "./;hello";
+
+message Empty{
+}
+message Status{
+  int32 status = 1;
+}
+```
+:::
+
+这里两个文件的 go_package 需要保持一致
+## 嵌套 message 对象
+当我们需要传递的数据格式比较复杂时，例如数组等，我们可以写成下面这样
+```proto
+syntax = "proto3";
+option go_package = "./;hello";
+
+message  Result{
+  string name = 1;
+  int32 age = 2;
+}
+message HelloResult{
+  repeated Result data = 1; // 返回一个数组
+}
+```
+**注意**，当上面中的 Result 只使用一次时，推荐使用下面写法
+```go
+syntax = "proto3";
+option go_package = "./;hello";
+
+message  Users { // [!code --]
+  string name = 1; // [!code --]
+  int32 age = 2; // [!code --]
+} // [!code --]
+
+message HelloResult { 
+  message  Users { // [!code ++]
+    string name = 1; // [!code ++]
+    int32 age = 2; // [!code ++]
+  } // [!code ++]
+  repeated Users data = 1;
+}
+```
+使用时，可以通过 HelloResult_Users , 就是外部和内部通过 _ 拼接成的
+```go
+...
+hello.HelloResult_Users{}
+...
 ```
