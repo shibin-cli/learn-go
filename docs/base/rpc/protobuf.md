@@ -2,6 +2,7 @@
 protobuf 官网文档 https://protobuf.dev/programming-guides/proto3/
 
 ## 数据类型
+### 基本数据类型
 |.proto Type	| 说明 |	Go Type
 |-|-|-|
 | double ||	float64 |
@@ -18,6 +19,65 @@ protobuf 官网文档 https://protobuf.dev/programming-guides/proto3/
 | bool	|	| bool
 | string	| 一个字符串必须是 UTF-8 编码或者 7-bit ASCII 编码的文本。	| string
 | bytes |	可能包含任意顺序的字节数据。|	[]byte
+
+```proto
+message  Response{
+  string name = 1;  // 1 是编号不是值
+  int32  age = 2;
+}
+```
+### 枚举类型
+```proto
+enum Gender{
+  MALE = 0;
+  FEMALE = 1;
+}
+message  Response{
+  string name = 1;
+  int32  age = 2;
+  Gender g = 3;
+}
+```
+go 中使用枚举类型
+```go
+... 
+hello.Gender_FEMALE
+```
+### Map 类型
+```proto
+message  Response{
+  string name = 1; // 姓名
+  int32  age = 2; // 年龄
+  map<string, string> map = 0;
+}
+```
+这里不太建议使用 map， 因为无法直接看出 key 所表示的意思
+### timestamp
+proto 文件中需要从 `google/protobuf/timestamp.proto` 导入该类型
+```proto
+import "google/protobuf/timestamp.proto";
+
+message  Response{
+  google.protobuf.Timestamp date = 1; 
+}
+```
+使用时需要导入拓展
+```go
+import (
+  	"google.golang.org/protobuf/types/known/timestamppb" // [!code hl]
+)
+func (c *Server) SayHello(ctx context.Context, request *hello.HelloRequest) (*hello.Response, error) {
+	return &hello.Response{
+		Date: timestamppb.Now(), // [!code hl]
+	}, nil
+}
+```
+### protobuf 拓展
+可以从 `google/protobuf/` 目录下导入相应的 protobuf 拓展，例如 timestamp 、empty 等
+```proto
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+```
 ## 默认值
 默认值
 当一个消息被解析的时候，如果被编码的信息不包含一个特定的singular元素，被解析的对象锁对应的域被设置位一个默认值，对于不同类型指定如下：
@@ -99,7 +159,7 @@ option go_package = "./;hello";
 message  Result{
   string name = 1;
   int32 age = 2;
-}
+} 
 message HelloResult{
   repeated Result data = 1; // 返回一个数组
 }

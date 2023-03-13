@@ -1,467 +1,117 @@
-# gRPC 入门
-## 什么是 gRPC
-[gRPC](https://grpc.io) 是一个高性能、开源和通用的 RPC 框架，面向移动和 HTTP/2 设计的。目前提供 C、Java 和 Go 语言版本，分别是：[grpc](https://github.com/grpc/grpc) 、 [grpc-java](https://github.com/grpc/grpc-java) 、 [grpc-go](https://github.com/grpc/grpc-go) 。其中 C 版本支持 C 、 C++ 、 Node.js 、 Python 、 Ruby 、 Objective-C 、 PHP 和 C# 支持.
-
-gRPC 文档地址 https://grpc.io/docs/
-
-go gRPC 文档地址 https://grpc.io/docs/languages/go/quickstart/
-## 什么是 protobuf
-[Protocol Buffer](https://protobuf.dev) （又名 protobuf）  是 Google出品的一种轻量高效的结构化数据存储格式。支持多种不同的编程语言
-
-protobuf 的优点
-* 性能
-  * 压缩性好
-  * 序列化和反序列化快 (比 json 、xml 快 2-100 倍)
-  * 传输速度快
-* 便携性
-  * 使用简单 （自动序列化和反序列化）
-  * 维护成本低 （只维护 proto 文件）
-  * 向后兼容
-  * 加密性好
-* 跨语言
-
-缺点
-* 通用性差  （需要专门的 protobuf 库解析）
-* 自解释性差 （只能通过 proto 文件才能了解数据结构）
-## gRPC 环境搭建
-
-### 安装 protoc
-#### Mac
-Mac 系统可以通过 brew 安装
-```bash
-brew install protoc
-```
-#### Win
-Win 下，打开 https://github.com/protocolbuffers/protobuf/releases ，下载指定的版本
-
-下面需要配置环境变量 ，将下载的 protobuf 文件中的 bin 目录下 protoc.exe 的添加到环境变量中
-* 鼠标右键此电脑属性
-* 点击 系统 -> 高级系统设置 -> 环境变量
-* 点击系统变量中的 Path, 将 bin 目录添加的环境变量中
-
-### 安装 grpc-go
-
-可以参考 https://grpc.io/docs/languages/go/quickstart/ 进行安装
-
-```bash
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
-```
-
-然后需要配置下环境变量
-
-```bash
-export PATH="$PATH:$(go env GOPATH)/bin"
-```
-## 编写 proto 文件
-```proto
-syntax = "proto3"; // 指定使用的proto版本
-option go_package = "./;hello"; // 指定 go package
-
-message HelloRequest {
-  string name = 1; // 1 是编号不是值
-  int32 age = 2; //   2 编号
-}
-```
-编译 proto 文件
-```bash
-protoc --go_out=.  hello.proto
-```
-会生成一个 hello.pb.go 文件
-## protobuf 和 json 对比
-
-导入上面生成的 hello.pb.go 文件
-
+# gRPC
+## metadata
 ```go
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	hello "rpc_demo/protobuf"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata" // [!code ++]
+
+	"rpc_demo/metadata/proto"
 )
 
 func main() {
-	req := hello.HelloRequest{
-		Name:    "shibin",
-		Age:     17,
-		Courses: []string{"go", "gin"},
-	}
-	res, _ := proto.Marshal(&req)
-	// res, _ := json.Marshal(&req)
-	fmt.Println(len(res)) // // 19
-
-	req1 := hello.HelloRequest{
-		Name:    "shibin",
-		Age:     17,
-		Courses: []string{"go", "gin"},
-	}
-	jsonRes, _ := json.Marshal(&req1)
-	fmt.Println(len(jsonRes)) // 49
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	defer conn.Close()
+	client := hello.NewHelloServiceClient(conn)
+	md := metadata.New(map[string]string{ // [!code ++]
+		"name":     "shibin", // [!code ++]
+		"password": "123456", // [!code ++]
+	}) // [!code ++]
+	ctx := metadata.NewOutgoingContext(context.Background(), md)                       // [!code ++]
+	r, _ := client.SayHello(ctx, &hello.HelloRequest{Name: "shibin"})                  // [!code ++]
+	r, _ := client.SayHello(context.Background(), &hello.HelloRequest{Name: "shibin"}) // [!code --]
+	fmt.Println(r.Status)
 }
 ```
-通过打印长度，可以发现 protobuf 比 json 长度少了一倍多
+服务端获取 metadata
 ```go
-	newReq := hello.HelloRequest{}
-	_ = proto.Unmarshal(res, &newReq)
-	fmt.Println(newReq.Name, newReq.Age, newReq.Courses)
-```
+func (s *Server) SayHello(ctx context.Context, req *hello.HelloRequest) (*hello.HelloResponse, error) {
+	md, ok := metadata.FromIncomingContext(ctx) // [!code ++]
+	if ok { // [!code ++]
+		for key, val := range md { // [!code ++]
+			fmt.Println(key, val) // [!code ++]
+		} // [!code ++]
+	} // [!code ++]
 
-protobuf 反序列化
-
-```go
-package main
-
-import (
-	"fmt"
-	"github.com/golang/protobuf/proto"
-	hello "rpc_demo/protobuf"
-)
-
-func main() {
-	req := hello.HelloRequest{
-		Name:    "shibin",
-		Age:     17,
-		Courses: []string{"go", "gin"},
-	}
-	res, _ := proto.Marshal(&req)
-	newReq := hello.HelloRequest{}
-	_ = proto.Unmarshal(res, &newReq)
-	fmt.Println(newReq.Name, newReq.Age, newReq.Courses) // shibin 17 [go gin]
-}
-```
-
-## gRPC 体验
-### proto 文件
-
-```proto
-syntax = "proto3";
-option go_package = "./;hello";
-
-message HelloRequest {
-  string name = 1;
-  int32 age = 2;
-}
-// grpc 解析的 // [!code ++]
-service HelloResponse { // [!code ++]
-  rpc SayHello(HelloRequest) returns (Response); // SayHello 接口  // [!code ++]
-} // [!code ++]
-message  Response{
-  string  message = 1;
-}
-```
-grpc 在 proto 增加了 service 这个语法， 在 service 中定义一个 SayHello 接口
-
-执行下面命令，编译 proto 文件
-
-```bash
-protoc --go_out=. --go-grpc_out=require_unimplemented_servers=false:. hello.proto 
-```
-会生成 hello.pb.go 和 hello_grpc.pb.go 两个文件。hello_grpc.pb.go 文件中就有服务端和客户端的接口，我们在服务端和客户端可以直接调用
-
-::: tip 注意
-如果不加 `go-grpc_out` 这个参数, 就只会生成 hello.pb.go 一个文件。只会生成 protobuf 相关的文件，不会生成 grpc 相关的文件。 `go-grpc_out` 就是为了生成 grpc 相关的文件
-:::
-### 服务端
-首先编写我们服务的实现
-```go
-type Server struct {
-}
-
-func (c *Server) SayHello(ctx context.Context, request *hello.HelloRequest) (*hello.Response, error) {
-	message := fmt.Sprintf("Hello, %s,age %d", request.Name, request.Age)
-	return &hello.Response{
-		Message: message,
+	return &hello.HelloResponse{
+		Status: 1,
 	}, nil
 }
 ```
-要构建和启动服务器
+## 拦截器
+### 服务端
+可以通过 `grpc.NewServer` 传递拦截器
 ```go
+func interceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) { // [!code ++]
+	md, ok := metadata.FromIncomingContext(ctx) // [!code ++]
+	if !ok { // [!code ++]
+		return resp, status.Error(codes.Unauthenticated, "无 token 认证信息") // [!code ++]
+	} // [!code ++]
+	var token string // [!code ++]
+	if val, ok := md["token"]; ok { // [!code ++]
+		token = val[0] // [!code ++]
+	} // [!code ++]
+	fmt.Println("token", token) // [!code ++]
+	res, err := handler(ctx, req) // [!code ++]
+	fmt.Println(time.Now()) // [!code ++]
+	return res, err // [!code ++]
+} // [!code ++]
+
 func main() {
-	// 注册 grpc服务器实例
-	g := grpc.NewServer()
-	// 向 grpc 注册我们的服务实现
-	hello.RegisterHelloResponseServer(g, &Server{})
-	// 监听客户端发送的请求
-	lis, err := net.Listen("tcp", "0.0.0.0:8080")
-	if err != nil {
-		panic("faild: " + err.Error())
-	}
-	// 使用监听端口的信息调用 grpc 的服务
-	err = g.Serve(lis)
-	if err != nil {
-		panic(err)
-	}
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor)) // [!code ++]
+	s :=  grpc.NewServer() // [!code --]
+	hello.RegisterHelloServiceServer(s, &Server{})
+	serve, _ := net.Listen("tcp", "0.0.0.0:8080")
+	_ = s.Serve(serve)
 }
 ```
 ### 客户端
+可以通过 `grpc.Dial` 的第三个参数来传递拦截器
 ```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"rpc_demo/grpc/protoc"
-)
-
+...
 func main() {
-	// 建立链接
-	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close()
+	interceptor := func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error { // [!code ++]
+		fmt.Println("发送了请求") // [!code ++]
+		err := invoker(ctx, method, req, reply, cc, opts...) // [!code ++]
+		fmt.Println(time.Now()) // [!code ++]
+		return err // [!code ++]
+	} // [!code ++]
 
-	// 建立 client 连接
-	c := hello.NewHelloResponseClient(conn)
-	// 调用服务端的方法
-	r, err := c.SayHello(context.Background(), &hello.HelloRequest{Name: "shibin1", Age: 17})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(r.Message)
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithUnaryInterceptor(interceptor)) // [!code ++]
+	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials())) // [!code --]
+	defer conn.Close()
+	client := hello.NewHelloServiceClient(conn)
+	r, _ := client.SayHello(context.Background(), &hello.HelloRequest{Name: "shibin"})
+	fmt.Println(r.Status)
 }
 ```
-### 完整代码
-::: code-group
-```go [server.go]
-package main
-
-import (
-	"context"
-	"fmt"
-	"google.golang.org/grpc"
-	"net"
-
-	"rpc_demo/grpc/hello" // 导入编译生成的 package hello
-)
-
-type Server struct {
+也可以使用下面的方式
+```go
+type customCredentinal struct {
 }
 
-func (c *Server) SayHello(ctx context.Context, request *hello.HelloRequest) (*hello.Response, error) {
-	message := fmt.Sprintf("Hello, %s,age %d", request.Name, request.Age)
-	return &hello.Response{
-		Message: message,
+func (c customCredentinal) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+	fmt.Println("发送了请求")
+	return map[string]string{
+		"token": "xxxxxdfsdf",
 	}, nil
 }
-func main() {
-	g := grpc.NewServer()
-	hello.RegisterHelloResponseServer(g, &Server{})
-
-	lis, err := net.Listen("tcp", "0.0.0.0:8080")
-	if err != nil {
-		panic("faild: " + err.Error())
-	}
-	g.Serve(lis)
+func (c customCredentinal) RequireTransportSecurity() bool {
+	return false
 }
-```
-```go [client.go]
-package main
-
-import (
-	"context"
-	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"rpc_demo/grpc/hello"
-)
 
 func main() {
-	conn, err := grpc.Dial("127.0.0.1:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-	}
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	opts = append(opts, grpc.WithPerRPCCredentials(customCredentinal{})) // grpc.Dial 的第三个参数
+	conn, _ := grpc.Dial("localhost:8080", opts...)
 	defer conn.Close()
-	c := hello.NewHelloResponseClient(conn)
-	r, err := c.SayHello(context.Background(), &hello.HelloRequest{Name: "shibin1", Age: 17})
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(r.Message)
+	client := hello.NewHelloServiceClient(conn)
+	r, _ := client.SayHello(context.Background(), &hello.HelloRequest{Name: "shibin"}) // [!code ++]
+	fmt.Println(r.Status)
 }
 ```
-```go [hello.proto]
-syntax = "proto3";
-option go_package = "./;hello";
-
-message HelloRequest {
-  string name = 1;
-  int32 age = 2;
-}
-service HelloResponse{
-  rpc SayHello(HelloRequest) returns (Response); // Hello 接口
-}
-message  Response{
-  string  message = 2;
-}
-```
-:::
-
-## 流模式
-编写 proto 文件
-```proto
-syntax = "proto3";
-option go_package = "./;stream";
-service Greater {
-  rpc GetStream(StreamData) returns (stream StreamRes); // 服务端流模式
-  rpc PutStream(stream StreamData) returns (StreamRes); // 客户端流模式
-  rpc AllStream(stream StreamData) returns (stream StreamRes); // 双向流模式
-}
-
-message StreamData {
-  string data = 1;
-}
-message StreamRes {
-  string  data = 1;
-}
-```
-### 服务端流模式
-::: code-group
-
-```go [server.go]
-func (s *Server) GetStream(req *stream.StreamReqData, res stream.Stream_GetStreamServer) error {
-	fmt.Println(req.Data)
-	i := 0
-	for {
-		i++
-		res.Send(&stream.StreamResData{
-			Data: fmt.Sprintf("服务端流模式，%d", i),
-		})
-		time.Sleep(time.Second)
-		if i > 10 {
-			break
-		}
-	}
-	return nil
-}
-```
-```go [client.go]
-func main(){
-	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer conn.Close()
-
-	getRes, _ := c.GetStream(context.Background(), &stream.StreamReqData{ // [!code ++]
-		Data: "Hehe", // [!code ++]
-	}) // [!code ++]
-	for { // [!code ++]
-		data, err := getRes.Recv() // [!code ++]
-		fmt.Println(data) // [!code ++]
-		if err != nil { // [!code ++]
-			break // [!code ++]
-		} // [!code ++]
-	} // [!code ++]
-}
-```
-:::
-
-
-
-### 客户端流模式
-::: code-group
-```go [server.go]
-func (s *Server) PutStream(req stream.Stream_PutStreamServer) error {
-	for {
-		data, err := req.Recv()
-		if err != nil {
-			break
-		}
-		fmt.Println(data)
-	}
-	return nil
-}
-```
-```go [client.go]
-func main(){
-	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer conn.Close()
-
-	putRes, _ := c.PutStream(context.Background()) // [!code ++]
-	i := 0 // [!code ++]
-	for { // [!code ++]
-		if i > 10 { // [!code ++]
-			break // [!code ++]
-		} // [!code ++]
-		putRes.Send(&stream.StreamReqData{ // [!code ++]
-			Data: fmt.Sprintf("Hello, %d", i), // [!code ++]
-		}) // [!code ++]
-		i++ // [!code ++]
-		time.Sleep(time.Second) // [!code ++]
-	} // [!code ++]
-}
-```
-:::
-
-### 双向流模式
-::: code-group
-```go [server.go]
-func (s *Server) AllStream(res stream.Stream_AllStreamServer) error {
-	wg := sync.WaitGroup{}
-
-	wg.Add(2) 
-	go func() {
-		defer wg.Done()
-		for {
-			data, err := res.Recv()
-			fmt.Println(data)
-			if err != nil {
-				break
-			}
-		}
-	}()
-	go func() {
-		defer wg.Done()
-		i := 0
-		for {
-			i++
-			res.Send(&stream.StreamResData{Data: fmt.Sprintf("服务端信息 %d", i)})
-			time.Sleep(time.Second)
-		}
-	}()
-	wg.Wait()
-	return nil
-}
-
-```
-
-```go [client.go]
-func main(){
-	conn, _ := grpc.Dial("localhost:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	defer conn.Close()
-
-	allRes, _ := c.AllStream(context.Background()) // [!code ++]
-	wg := sync.WaitGroup{} // [!code ++]
-	wg.Add(2) // [!code ++]
-	go func() { // [!code ++]
-		defer wg.Done() // [!code ++]
-		i := 0 // [!code ++]
-		for { // [!code ++]
-			allRes.Send(&stream.StreamReqData{ // [!code ++]
-				Data: fmt.Sprintf("Hello, %d", i), // [!code ++]
-			}) // [!code ++]
-			time.Sleep(time.Second) // [!code ++]
-			i++ // [!code ++]
-		} // [!code ++]
-	}() // [!code ++]
-	go func() { // [!code ++]
-		defer wg.Done() // [!code ++]
-		for { // [!code ++]
-			data, _ := allRes.Recv() // [!code ++]
-			fmt.Println(data) // [!code ++]
-		} // [!code ++]
-	}() // [!code ++]
-	wg.Wait() // [!code ++]
-}
-```
-:::
-
-下面是流模式的完整代码
-::: code-group
-<<< @/code/grpc-stream/proto/stream.proto
-<<< @/code/grpc-stream/server/server.go
-<<< @/code/grpc-stream/client/client.go
-:::
