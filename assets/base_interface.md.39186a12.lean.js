@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,Q as l}from"./chunks/framework.048f41ab.js";const C=JSON.parse('{"title":"接口","description":"","frontmatter":{},"headers":[],"relativePath":"base/interface.md"}'),p={name:"base/interface.md"},o=l("",8),e=[o];function t(c,r,D,F,y,A){return n(),a("div",null,e)}const d=s(p,[["render",t]]);export{C as __pageData,d as default};

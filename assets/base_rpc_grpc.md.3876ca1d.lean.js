@@ -1,0 +1,1 @@
+import{_ as s,c as n,o as a,Q as l}from"./chunks/framework.048f41ab.js";const F=JSON.parse('{"title":"gRPC","description":"","frontmatter":{},"headers":[],"relativePath":"base/rpc/grpc.md"}'),p={name:"base/rpc/grpc.md"},o=l("",39),e=[o];function t(c,r,y,C,i,A){return a(),n("div",null,e)}const f=s(p,[["render",t]]);export{F as __pageData,f as default};
