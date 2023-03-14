@@ -4,7 +4,10 @@ export default defineConfig({
   title: 'Go学习',
   description: 'Go基础学习',
   base: '/learn-go/',
-  head: [['meta', { name: 'theme-color', content: '#3c8772' }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    ['meta', { name: 'theme-color', content: '#3c8772' },
+    ]],
   themeConfig: {
     algolia: {
       appId: '16LHHYNQFO',
