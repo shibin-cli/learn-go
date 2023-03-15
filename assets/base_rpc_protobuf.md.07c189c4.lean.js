@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,Q as p}from"./chunks/framework.695d4026.js";const F=JSON.parse('{"title":"protobuf","description":"","frontmatter":{},"headers":[],"relativePath":"base/rpc/protobuf.md"}'),l={name:"base/rpc/protobuf.md"},o=p("",42),e=[o];function t(r,c,C,y,D,A){return n(),a("div",null,e)}const d=s(l,[["render",t]]);export{F as __pageData,d as default};
