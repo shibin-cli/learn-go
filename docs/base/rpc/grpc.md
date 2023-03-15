@@ -245,3 +245,12 @@ func main() {
 }
 ```
 ### 超时机制
+```go {2}
+ ...
+ 	ctx, _ := context.WithTimeout(context.Background(), time.Second * 3)
+	r, err := client.SayHello(ctx, &user.Person{
+		Email: "aaa@gmail.com",
+		Name:  "shibin",
+	})
+...
+```

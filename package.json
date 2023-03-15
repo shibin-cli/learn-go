@@ -22,11 +22,13 @@
     "type": "git",
     "url": "git+https://github.com/shibin-cli/learn-go.git"
   },
-  "keywords": ["go"],
+  "keywords": [
+    "go"
+  ],
   "author": "Shibin",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/shibin-cli/learn-go/issues"
   },
-  "homepage": "https://github.com/shibin-cli/learn-go#readme"
+  "homepage": "https://github.com/shibin-cli/learn-go"
 }
