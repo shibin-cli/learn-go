@@ -58,10 +58,13 @@ function sidebarBase() {
         { text: '微服务架构', link: '/base/microservices/base.md' },
       ]
     },{
-      text: 'ORM',
+      text: 'GORM',
       collapsed: false,
       items: [
-        { text: 'ORM', link: '/base/orm/orm.md' },
+        // { text: 'ORM', link: '/base/gorm/orm.md' },
+        { text: 'GORM 入门', link: '/base/gorm/start.md' },
+        { text: '模型', link: '/base/gorm/model.md' },
+        { text: 'CRUD', link: '/base/gorm/crud.md' },
       ]
     }]
 }
