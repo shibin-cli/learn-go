@@ -1,0 +1,1 @@
+import{_ as e,c as r,o as t,Q as a}from"./chunks/framework.88922de4.js";const f=JSON.parse('{"title":"ORM","description":"","frontmatter":{},"headers":[],"relativePath":"base/gorm/orm.md"}'),o={name:"base/gorm/orm.md"},n=a("",3),s=[n];function _(c,m,i,l,h,p){return t(),r("div",null,s)}const g=e(o,[["render",_]]);export{f as __pageData,g as default};

@@ -1,0 +1,1 @@
+import{_ as s,c as n,o as a,Q as l}from"./chunks/framework.88922de4.js";const i=JSON.parse('{"title":"RPC","description":"","frontmatter":{},"headers":[],"relativePath":"base/rpc/rpc.md"}'),p={name:"base/rpc/rpc.md"},o=l("",37),e=[o];function t(c,D,r,F,y,A){return a(),n("div",null,e)}const u=s(p,[["render",t]]);export{i as __pageData,u as default};

@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,Q as l}from"./chunks/framework.88922de4.js";const C=JSON.parse('{"title":"CRUD","description":"","frontmatter":{},"headers":[],"relativePath":"base/gorm/crud.md"}'),o={name:"base/gorm/crud.md"},p=l("",54),e=[p];function t(c,r,D,F,y,i){return n(),a("div",null,e)}const d=s(o,[["render",t]]);export{C as __pageData,d as default};
