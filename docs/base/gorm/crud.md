@@ -80,6 +80,17 @@ result := db.Find(&users)
 result.RowsAffected // returns found records count, equals `len(users)`
 result.Error        // returns error
 ```
+### 选择特定字段
+```go
+db.Select("name", "age").Find(&users)
+// SELECT name, age FROM users;
+
+db.Select([]string{"name", "age"}).Find(&users)
+// SELECT name, age FROM users;
+
+db.Table("users").Select("COALESCE(age,?)", 42).Rows()
+// SELECT COALESCE(age,'42') FROM users;
+```
 ## 更新
 ### 保存所有字段
 
@@ -135,10 +146,10 @@ db.Model(&user).Select("Name", "Age").Updates(User{Name: "new_name", Age: 0})
 // UPDATE users SET name='new_name', age=0 WHERE id=111;
 
 // 更新所有字段，包括零值字段
-db.Model(&user).Select("*").Updates(User{Name: "jinzhu", Role: "admin", Age: 0})
+db.Model(&user).Select("*").Updates(User{Name: "shibin", Role: "admin", Age: 0})
 
 // 更新除了 Role 的所有字段 包括零值字段
-db.Model(&user).Select("*").Omit("Role").Updates(User{Name: "jinzhu", Role: "admin", Age: 0})
+db.Model(&user).Select("*").Omit("Role").Updates(User{Name: "shibin", Role: "admin", Age: 0})
 ```
 
 ## 删除

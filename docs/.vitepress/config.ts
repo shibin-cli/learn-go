@@ -65,6 +65,7 @@ function sidebarBase() {
         { text: 'GORM 入门', link: '/base/gorm/start.md' },
         { text: '模型', link: '/base/gorm/model.md' },
         { text: 'CRUD', link: '/base/gorm/crud.md' },
+        { text: '关联', link: '/base/gorm/relation.md' },
       ]
     }]
 }
