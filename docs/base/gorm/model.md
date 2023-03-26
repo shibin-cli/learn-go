@@ -44,6 +44,35 @@ type User struct {
   Name string
 }
 ```
+## 表名
+默认情况下，GORM 使用结构体名的`蛇形复数`作为表名
+```go
+// 默认表名为 users
+type User struct {
+  gorm.Model
+  Name string
+}
+```
+### 自定义表名
+将 users 表名修改为 my_user
+```go
+func (User) TableName() string {
+	return "my_user"
+}
+```
+### 给表名加前缀
+
+```go
+// 给所有的表名加上 shibin_ 这个前缀
+db, err := gorm.Open(mysql.Open(dns), &gorm.Config{
+  NamingStrategy: schema.NamingStrategy{
+    TablePrefix: "shibin_",
+  },
+})
+```
+:::warning 注意
+给表名加前缀时，尽量不要使用自定义表名，否则会跟自定义表名冲突，不会给自定义表名加上前缀
+:::
 ## 字段标签
 声明 model 时，tag 是可选的
 
