@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,Q as l}from"./chunks/framework.88922de4.js";const A=JSON.parse('{"title":"关联","description":"","frontmatter":{},"headers":[],"relativePath":"base/gorm/relation.md"}'),p={name:"base/gorm/relation.md"},o=l("",32),e=[o];function t(c,r,D,y,F,i){return n(),a("div",null,e)}const d=s(p,[["render",t]]);export{A as __pageData,d as default};

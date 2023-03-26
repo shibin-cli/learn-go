@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,Q as l}from"./chunks/framework.88922de4.js";const A=JSON.parse('{"title":"模型","description":"","frontmatter":{},"headers":[],"relativePath":"base/gorm/model.md"}'),t={name:"base/gorm/model.md"},p=l("",25),e=[p];function o(r,c,D,i,y,d){return n(),a("div",null,e)}const F=s(t,[["render",o]]);export{A as __pageData,F as default};
