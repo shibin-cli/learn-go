@@ -24,8 +24,6 @@ func main() {
 }
 ```
 
-在浏览器中访问 http://localhost:8080/ping
-
 ## 路由
 ### 设置路由
 ```go
