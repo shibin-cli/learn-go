@@ -51,13 +51,15 @@ function sidebarBase() {
         { text: 'protobuf', link: '/base/rpc/protobuf.md' },
         { text: 'gRPC', link: '/base/rpc/grpc.md' },
       ]
-    }, {
-      text: '微服务',
-      collapsed: false,
-      items: [
-        { text: '微服务架构', link: '/base/microservices/base.md' },
-      ]
-    },{
+    },
+    // {
+    //   text: '微服务',
+    //   collapsed: false,
+    //   items: [
+    //     { text: '微服务架构', link: '/base/microservices/base.md' },
+    //   ]
+    // },
+    {
       text: 'GORM',
       collapsed: false,
       items: [
@@ -66,6 +68,12 @@ function sidebarBase() {
         { text: '模型', link: '/base/gorm/model.md' },
         { text: 'CRUD', link: '/base/gorm/crud.md' },
         { text: '关联', link: '/base/gorm/relation.md' },
+      ]
+    }, {
+      text: 'Web 开发',
+      collapsed: false,
+      items: [
+        { text: 'Gin', link: '/base/web/gin.md' },
       ]
     }]
 }
