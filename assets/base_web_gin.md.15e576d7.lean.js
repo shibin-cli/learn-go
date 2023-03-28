@@ -1,0 +1,1 @@
+import{_ as s,c as n,o as a,Q as l}from"./chunks/framework.88922de4.js";const i=JSON.parse('{"title":"Gin","description":"","frontmatter":{},"headers":[],"relativePath":"base/web/gin.md"}'),p={name:"base/web/gin.md"},o=l("",62),t=[o];function e(D,c,r,F,y,A){return a(),n("div",null,t)}const u=s(p,[["render",e]]);export{i as __pageData,u as default};
