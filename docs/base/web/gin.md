@@ -1,9 +1,11 @@
 # Gin
+
 [Gin](https://gin-gonic.com) 是一个用 Go (Golang) 编写的 HTTP Web 框架。 它具有类似 Martini 的 API，但性能比 Martini 快 40 倍。如果你需要极好的性能，使用 Gin 吧。
 
 Gin 文档地址 https://gin-gonic.com/zh-cn/docs/
 
 ## 安装
+
 ```bash
 go get -u github.com/gin-gonic/gin
 ```
@@ -241,6 +243,123 @@ r.GET("/list", func(c *gin.Context) {
   })
 })
 ```
+
 更多参考 
 * [gin 模型绑定验证](https://gin-gonic.com/zh-cn/docs/examples/binding-and-validation/)
 * [go-playground/validator](https://pkg.go.dev/github.com/go-playground/validator/v10)
+  * https://github.com/go-playground/validator/
+
+
+## 验证信息翻译
+参考  [go-playground/validator/_examples/translations/main.go](https://github.com/go-playground/validator/blob/master/_examples/translations/main.go)
+
+初始化翻译
+```go
+var trans ut.Translator
+func initTrans(local string) (err error) {
+  // 修改 gin validator 引擎属性
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		zhT := zh.New()
+		enT := en.New()
+		// 第一个参数是备用语言,后面参数是需要支持的环境
+		uni := ut.New(enT, zhT, enT)
+		trans, ok = uni.GetTranslator(local)
+		if !ok {
+			return fmt.Errorf("uni.GetTranslator(%s)", local)
+		}
+		switch local {
+		case "en":
+			return en_translations.RegisterDefaultTranslations(v, trans)
+		case "zh":
+			return cn_translations.RegisterDefaultTranslations(v, trans)
+		default:
+			return en_translations.RegisterDefaultTranslations(v, trans)
+		}
+	}
+	return fmt.Errorf("uni.GetTranslator(%s)", local)
+}
+```
+在请求中使用
+```go
+func signup(c *gin.Context) {
+	var signupUser Signup
+
+	if err := c.ShouldBind(&signupUser); err != nil {
+		errs, ok := err.(validator.ValidationErrors) // [!code ++]
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"err": err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{ // [!code ++]
+				"err": errs.Translate(trans), // [!code ++]
+			}) // [!code ++]
+		}
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"user": signupUser,
+	})
+}
+
+```
+## gin 中间键
+
+```go
+func main() {
+  r := gin.New()
+  // 全局中间件
+  r.Use(func(c *gin.Context) {
+		...
+	})
+
+	// group 中间键
+	{
+		goodsRoute := r.Group("/goods")
+		goodsRoute.Use(func(c *gin.Context) {
+			...
+		})
+		goodsRoute.Use(func(c *gin.Context) {
+			...
+		})
+	}
+  r.run(":8080")
+}
+```
+将中间件封装到函数中
+```go
+func myLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		t := time.Now()
+		c.Next()
+		fmt.Println(time.Since(t), c.FullPath(), c.Writer.Status())
+	}
+}
+
+func main() {
+  r := gin.New()
+  r.Use(myLogger())
+  r.run(":8080")
+}
+```
+如果要阻止后续中间键的执行，可以使用 `context.Abort`
+```go
+func authRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var token string
+		for k, v := range c.Request.Header {
+			if k == "X-Token" {
+				token = v[0]
+				break
+			}
+		}
+		if token != "shibin" {
+			c.JSON(http.StatusUnauthorized, gin.H{"msg": "token不合法"})
+
+			// return 无法阻止后面中间键的执行  // [!code ++]
+			c.Abort() // [!code ++]
+		}
+		c.Next()
+	}
+}
+```

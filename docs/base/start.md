@@ -43,7 +43,30 @@ go env -w  GO111MODULE=off
 ```bash
 go env -w GOPROXY=https://goproxy.cn,direct
 ```
+## 常用命令
+### go get
+`go get` 用来安装第三方的依赖包
+```bash
+go get github.com/gin-gonic/gin
+```
+如果本地已有该依赖包，可以通过 `-u` 来拉取最新依赖代码
+```bash
+# 与不加 -u 的区别：本地已有该依赖包时，会拉取最新依赖，不加不会
+go get -u github.com/gin-gonic/gin
+```
+### go mod
+查看 `go mod` 下的命令
+```bash
+go mod help
+```
+常用命令
+```bash
+# 初始化  go mod 文件
+go mod init
 
+# 安装使用的依赖并删除无用的依赖包
+go mod tidy
+```
 ## 相关书籍
 
 [Go语言圣经](https://gopl-zh.github.io)
